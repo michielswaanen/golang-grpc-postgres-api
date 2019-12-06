@@ -20,7 +20,7 @@ func GetConnection() *sql.DB {
 	db, err := sql.Open("postgres", credentials)
 
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	return db
