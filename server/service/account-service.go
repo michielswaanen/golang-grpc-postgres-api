@@ -28,11 +28,7 @@ func (s *accountServer) Login(ctx context.Context, request *services.AccountLogi
 
 	// No account found with the specific account and password
 	if err != nil {
-		return &services.AccountLoginResponse{
-			Name:    nil,
-			Email:   nil,
-			LoginAt: nil,
-		}, errors.New("email or password is wrong")
+		return &services.AccountLoginResponse{}, errors.New("email or password is wrong")
 	}
 
 	// Set name and email variables to the result retrieved by the query
