@@ -6,20 +6,16 @@ package services;
 
 import "google/protobuf/timestamp.proto";
 
-enum AuthenticationStatus {
-    SUCCESS = 0;
-    FAILED = 1;
-}
-
 message AccountLoginRequest {
     string email = 1;
     string password = 2;
 }
 
 message AccountLoginResponse {
-    string name = 1;
-    string email = 2;
-    google.protobuf.Timestamp loginAt = 3;
+    int64 id = 1;
+    string name = 2;
+    string email = 3;
+    google.protobuf.Timestamp loginAt = 4;
 }
 
 message AccountRegisterRequest {
@@ -30,9 +26,10 @@ message AccountRegisterRequest {
 }
 
 message AccountRegisterResponse {
-    string name = 1;
-    string email = 2;
-    google.protobuf.Timestamp registerAt = 3;
+    int64 id = 1;
+    string name = 2;
+    string email = 3;
+    google.protobuf.Timestamp registerAt = 4;
 }
 
 service AccountService {

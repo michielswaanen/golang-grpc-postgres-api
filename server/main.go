@@ -12,7 +12,7 @@ func main() {
 	// Create a new server listener
 	listener, err := net.Listen("tcp", ":4040")
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	// Create a new services server
@@ -26,7 +26,7 @@ func main() {
 
 	// Start server listening
 	if e := gRPCServer.Serve(listener); e != nil {
-		panic(e)
+		panic(e.Error())
 		return
 	}
 }
