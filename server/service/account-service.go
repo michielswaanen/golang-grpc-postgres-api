@@ -5,65 +5,85 @@ import (
 	"../database"
 	"../database/queries"
 	"context"
-	"errors"
+	"database/sql"
+	"fmt"
 	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 )
 
 type accountServer struct{}
 
+func (s *accountServer) Fetch(ctx context.Context, request *services.AccountFetchRequest) (*services.AccountFetchResponse, error) {
+	id := request.GetId()
+
+	db := database.Connection
+
+	stmt := queries.FetchAccount(db)
+	defer stmt.Close()
+
+	var name, email string
+	var createdAt time.Time
+
+	if err := stmt.QueryRow(id).Scan(&name, &email, &createdAt); err == nil {
+		convertedTime, _ := ptypes.TimestampProto(createdAt)
+		return &services.AccountFetchResponse{
+			Id:        id,
+			Name:      name,
+			Email:     email,
+			CreatedAt: convertedTime,
+		}, nil
+	} else if err == sql.ErrNoRows {
+		return nil, status.Error(codes.Unknown, "No account found with that email and password")
+	} else {
+		fmt.Println(err)
+		return nil, status.Error(codes.Internal, "Couldn't access the database, please try again later")
+	}
+}
+
 func (s *accountServer) Login(ctx context.Context, request *services.AccountLoginRequest) (*services.AccountLoginResponse, error) {
 	// Get data from request body
 	email, pass := request.GetEmail(), request.GetPassword()
 
-	// Create a database connection
-	db := database.GetConnection()
+	// Get a database connection
+	db := database.Connection
 
 	// Create statement: Check if an account is available with a specific email and password
 	stmt := queries.AuthenticateAccount(db)
 	defer stmt.Close()
 
-	// Execute statement: Check if an account is available
-	rows, err := stmt.Query(email, pass)
-
-	// No account found with the specific account and password
-	if err != nil {
-		return &services.AccountLoginResponse{}, errors.New("email or password is wrong")
-	}
-
-	// Set name and email variables to the result retrieved by the query
 	var name string
-	err = rows.Scan(&name, &email)
-	loginAt, _ := ptypes.TimestampProto(time.Now())
 
-	checkError(err)
-
-	return &services.AccountLoginResponse{
-		Name:    name,
-		Email:   email,
-		LoginAt: loginAt,
-	}, nil
+	// Execute statement: Check if an account is available
+	if err := stmt.QueryRow(email, pass).Scan(&name, &email); err == nil {
+		loginAt, _ := ptypes.TimestampProto(time.Now())
+		return &services.AccountLoginResponse{
+			Name:    name,
+			Email:   email,
+			LoginAt: loginAt,
+		}, nil
+	} else if err == sql.ErrNoRows {
+		return nil, status.Error(codes.Unknown, "No account found with that email and password")
+	} else {
+		return nil, status.Error(codes.Internal, "Couldn't access the database, please try again later")
+	}
 }
 
 func (a *accountServer) Register(ctx context.Context, request *services.AccountRegisterRequest) (*services.AccountRegisterResponse, error) {
 	// Get data from the request body
 	email := request.GetEmail()
 
-	// Create a new database connection
-	db := database.GetConnection()
+	// Get a new database connection
+	db := database.Connection
 
 	// Create statement: check if account is available
 	stmt := queries.IsAccountAvailable(db)
 	defer stmt.Close()
 
 	// Execute statement: check if account is available
-	rows, err := stmt.Query(email)
-
-	checkError(err)
-
-	// If data was returned by the query (so the email exists), then there's no error.
-	if err := rows.Scan(&email); err != nil {
-		return &services.AccountRegisterResponse{}, errors.New("email already registered")
+	if err := stmt.QueryRow(email).Scan(&email); err == nil {
+		return &services.AccountRegisterResponse{}, status.Error(codes.AlreadyExists, "Email already registered")
 	}
 
 	// Get data from the request body
@@ -71,7 +91,7 @@ func (a *accountServer) Register(ctx context.Context, request *services.AccountR
 
 	// Check if both passwords are equal
 	if pass != passConfirm {
-		return &services.AccountRegisterResponse{}, errors.New("password does not match the password confirmation")
+		return nil, status.Error(codes.FailedPrecondition, "Passwords does not match")
 	}
 
 	// Create statement: Insert account into database
@@ -80,27 +100,24 @@ func (a *accountServer) Register(ctx context.Context, request *services.AccountR
 
 	// Execute statement: Insert account into database and return the last inserted id
 	var accountID int64
-	err = stmt.QueryRow(name, email, pass).Scan(&accountID)
 
-	checkError(err)
+	if err := stmt.QueryRow(name, email, pass).Scan(&accountID); err != nil {
+		return nil, status.Error(codes.Internal, "Couldn't register account, please try again later")
+	}
 
 	// Get the current time
-	registeredAt, _ := ptypes.TimestampProto(time.Now())
-
-	return &services.AccountRegisterResponse{
-		Id:         accountID,
-		Name:       name,
-		Email:      email,
-		RegisterAt: registeredAt,
-	}, nil
+	if registeredAt, err := ptypes.TimestampProto(time.Now()); err != nil {
+		return nil, status.Error(codes.Internal, "Couldn't retrieve server time, please try again later")
+	} else {
+		return &services.AccountRegisterResponse{
+			Id:         accountID,
+			Name:       name,
+			Email:      email,
+			RegisterAt: registeredAt,
+		}, nil
+	}
 }
 
 func InitializeAccountServer() *accountServer {
 	return new(accountServer)
-}
-
-func checkError(err error) {
-	if err != nil {
-		panic(err.Error())
-	}
 }
