@@ -1,6 +1,9 @@
 package database
 
-import "database/sql"
+import (
+	"database/sql"
+	_ "github.com/lib/pq"
+)
 
 const (
 	DB_USER = "postgres"
@@ -10,11 +13,9 @@ const (
 	DB_HOST = "localhost"
 )
 
-func getConnectionCredentials() string {
-	return "host=" + DB_HOST +  "dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD + " sslmode=" + DB_SSLMODE
-}
+var Connection *sql.DB
 
-func GetConnection() *sql.DB {
+func NewConnection() {
 	credentials := getConnectionCredentials()
 
 	db, err := sql.Open("postgres", credentials)
@@ -23,5 +24,11 @@ func GetConnection() *sql.DB {
 		panic(err.Error())
 	}
 
-	return db
+	db.SetMaxOpenConns(2)
+	Connection = db
 }
+
+func getConnectionCredentials() string {
+	return "host=" + DB_HOST +  " dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD + " sslmode=" + DB_SSLMODE
+}
+

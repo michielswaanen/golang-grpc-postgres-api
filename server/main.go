@@ -2,6 +2,7 @@ package main
 
 import (
 	"../services"
+	"./database"
 	"./service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -14,6 +15,8 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+
+	database.NewConnection()
 
 	// Create a new services server
 	gRPCServer := grpc.NewServer()
