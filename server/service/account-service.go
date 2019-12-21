@@ -6,7 +6,6 @@ import (
 	"../database/queries"
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -37,7 +36,6 @@ func (s *accountServer) Fetch(ctx context.Context, request *services.AccountFetc
 	} else if err == sql.ErrNoRows {
 		return nil, status.Error(codes.Unknown, "No account found with that email and password")
 	} else {
-		fmt.Println(err)
 		return nil, status.Error(codes.Internal, "Couldn't access the database, please try again later")
 	}
 }

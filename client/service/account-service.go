@@ -33,7 +33,7 @@ func Login(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
 		}
 	} else if status.Code(err) == codes.Unknown {
-		ctx.AbortWithStatusJSON(http.StatusNoContent, err)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, err)
 	} else {
 		panic(err)
 	}

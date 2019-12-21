@@ -17,7 +17,7 @@ func main() {
 	}
 	{
 		auth := account.Group("/fetch")
-		auth.Use(security.AuthenticationRequired("user"))
+		auth.Use(security.AuthenticationRequired("admin"))
 		{
 			auth.GET("/:id", service.Fetch)
 		}

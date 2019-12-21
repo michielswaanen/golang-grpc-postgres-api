@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "email": "m1.swaanen@hotmail.com",
-  "password": "1234"
+  "password": "12345"
 }
 
 ###
@@ -20,8 +20,8 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8080/account/fetch/100
+GET http://localhost:8080/account/fetch/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0xLnN3YWFuZW5AaG90bWFpbC5jb20iLCJleHBpcmVzQXQiOjE1NzYxNzQzMDEsImlkIjowLCJsb2dpbkF0Ijp7InNlY29uZHMiOjE1NzYxNzM0MDEsIm5hbm9zIjo5Njc3NDUwMDB9LCJuYW1lIjoiTWljaGllbCBTd2FhbmVuIn0.r7SxAeXKfBxDDN4-q6N3-gW87hBCY1fKBb47SPfeP1M
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0xLnN3YWFuZW5AaG90bWFpbC5jb20iLCJleHBpcmVzQXQiOjE1NzYyNjI3NjMsImlkIjowLCJuYW1lIjoiTWljaGllbCBTd2FhbmVuIiwicm9sZSI6InVzZXIifQ.vqsyb4zPt8nTNY3hqj95yJi1pdj5aYmLmqdrf3A9DGs
 
 ###
