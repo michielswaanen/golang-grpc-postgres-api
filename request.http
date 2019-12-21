@@ -1,0 +1,27 @@
+POST http://localhost:8080/account/login
+Content-Type: application/json
+
+{
+  "email": "m1.swaanen@hotmail.com",
+  "password": "12345"
+}
+
+###
+
+POST http://localhost:8080/account/register
+Content-Type: application/json
+
+{
+  "name": "Michiel Swaanen",
+  "email": "m2.swaanen@hotmail.com",
+  "password": "1234",
+  "passwordConfirmation": "1234"
+}
+
+###
+
+GET http://localhost:8080/account/fetch/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0xLnN3YWFuZW5AaG90bWFpbC5jb20iLCJleHBpcmVzQXQiOjE1NzYyNjI3NjMsImlkIjowLCJuYW1lIjoiTWljaGllbCBTd2FhbmVuIiwicm9sZSI6InVzZXIifQ.vqsyb4zPt8nTNY3hqj95yJi1pdj5aYmLmqdrf3A9DGs
+
+###
